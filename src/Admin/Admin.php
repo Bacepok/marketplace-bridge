@@ -242,45 +242,45 @@ class Admin
 
             <?php if (!empty($products)) : ?>
 
-                <table class="widefat striped">
+              <table class="widefat striped">
 
-                    <thead>
+                <thead>
+
+                <tr>
+
+                    <th>Offer ID</th>
+
+                    <th>Product ID</th>
+
+                    <th>Название</th>
+
+                    <th>Статус</th>
+
+                </tr>
+
+                </thead>
+
+                <tbody>
+
+                <?php foreach ($products as $product) : ?>
 
                     <tr>
 
-                        <th>Offer ID</th>
+                        <td><?php echo esc_html($product['offer_id']); ?></td>
 
-                        <th>Product ID</th>
+                        <td><?php echo esc_html($product['product_id']); ?></td>
 
-                        <th>Название</th>
+                        <td><?php echo esc_html($product['name']); ?></td>
 
-                        <th>Статус</th>
+                        <td><?php echo esc_html($product['status']); ?></td>
 
                     </tr>
 
-                    </thead>
+                <?php endforeach; ?>
 
-                    <tbody>
+                </tbody>
 
-                    <?php foreach ($products as $product) : ?>
-
-                        <tr>
-
-                            <td><?php echo esc_html($product['offer_id']); ?></td>
-
-                            <td><?php echo esc_html($product['product_id']); ?></td>
-
-                            <td><?php echo esc_html($product['name']); ?></td>
-
-                            <td><?php echo esc_html($product['status']); ?></td>
-
-                        </tr>
-
-                    <?php endforeach; ?>
-
-                    </tbody>
-
-                </table>
+            </table>
 
             <?php endif; ?>
 
