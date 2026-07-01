@@ -316,13 +316,25 @@ class Admin
 
                         <td>
 
-                            <button
-                                class="button button-secondary"
-                                disabled>
+                            <form method="post" style="margin:0;">
 
-                                Подробнее
+    <?php wp_nonce_field('mb_catalog_details'); ?>
 
-                            </button>
+    <input
+        type="hidden"
+        name="product_id"
+        value="<?php echo (int)$product['product_id']; ?>">
+
+    <button
+        class="button button-secondary"
+        name="mb_product_details"
+        value="1">
+
+        Подробнее
+
+    </button>
+
+</form>
 
                         </td>
 
