@@ -63,3 +63,24 @@ public function settings(): void
 
     SettingsView::render($result);
 }
+
+public function catalog(): void
+{
+    $controller = new CatalogController();
+
+    $result = $controller->handle();
+
+    CatalogView::render(
+        $result['catalog'],
+        $result['details']
+    );
+
+    if (
+        !empty($result['details']) &&
+        !empty($result['details']['item'])
+    ) {
+        ProductCardView::render(
+            $result['details']['item']
+        );
+    }
+}
