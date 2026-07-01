@@ -206,35 +206,14 @@ class Admin
     {
         $products = [];
 
-if (isset($_POST['mb_load_catalog'])) {
+        if (isset($_POST['mb_load_catalog'])) {
 
-    check_admin_referer('mb_catalog');
+            check_admin_referer('mb_catalog');
 
-    $service = new ProductService();
+            $service = new ProductService();
 
-    $catalog = $service->getProducts();
-
-    if (!$catalog['success']) {
-
-        echo '<pre>';
-        print_r($catalog);
-        echo '</pre>';
-        die();
-
-    }
-
-    $details = new \MarketplaceBridge\Ozon\ProductDetailsService();
-
-    echo '<pre>';
-    print_r(
-        $details->getByProductId(
-            $catalog['items'][0]['product_id']
-        )
-    );
-    echo '</pre>';
-
-    die();
-}
+            $products = $service->getProducts();
+        }
 
         ?>
 
