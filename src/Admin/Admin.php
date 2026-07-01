@@ -217,9 +217,6 @@ class Admin
         $service = new ProductService();
 
         $catalog = $service->getProducts();
-    }
-
-    $catalog = $service->getProducts();
 }
 
 $details = null;
