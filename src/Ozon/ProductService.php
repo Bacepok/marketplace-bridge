@@ -14,80 +14,83 @@ class ProductService
     }
 
     /**
-     * Получить каталог Ozon
+     * Получить список товаров Ozon.
+     *
+     * Возвращает:
+     * [
+     *     'items' => [],
+     *     'last_id' => ''
+     * ]
      */
     public function getProducts(
         int $limit = 50,
         string $lastId = ''
     ): array {
 
-        // 1. Получаем список product_id
-
         $response = $this->client->post(
             '/v3/product/list',
             [
                 'filter'  => new \stdClass(),
                 'last_id' => $lastId,
-                'limit'   => $limit
+                'limit'   => $limit,
             ]
         );
-        echo '<pre>';
-        print_r($response);
-        echo '</pre>';
-        die();
 
-        if (
-            !$response['success']
-            || empty($response['body']['result']['items'])
-        ) {
-            return [];
+        if (!$response['success']) {
+
+            return [
+                'success' => false,
+                'message' => $response['message'],
+                'items'   => [],
+                'last_id' => '',
+            ];
+
         }
 
-        $productIds = [];
+        if (
+            empty($response['body']['result']) ||
+            !isset($response['body']['result']['items'])
+        ) {
+
+            return [
+                'success' => false,
+                'message' => 'Некорректный ответ Ozon.',
+                'items'   => [],
+                'last_id' => '',
+            ];
+
+        }
+
+        $items = [];
 
         foreach ($response['body']['result']['items'] as $item) {
 
-            $productIds[] = $item['product_id'];
+            $items[] = [
 
-        }
+                'product_id' => (int) ($item['product_id'] ?? 0),
 
-        // 2. Получаем подробную информацию
+                'offer_id' => (string) ($item['offer_id'] ?? ''),
 
-        $info = $this->client->post(
-            '/v2/product/info/list',
-            [
-                'product_id' => $productIds
-            ]
-        );
+                'archived' => (bool) ($item['archived'] ?? false),
 
-        if (
-            !$info['success']
-            || empty($info['body']['items'])
-        ) {
-            return [];
-        }
+                'has_fbo' => (bool) ($item['has_fbo_stocks'] ?? false),
 
-        $products = [];
-
-        foreach ($info['body']['items'] as $item) {
-
-            $products[] = [
-
-                'product_id' => $item['id'] ?? '',
-
-                'offer_id' => $item['offer_id'] ?? '',
-
-                'name' => $item['name'] ?? '',
-
-                'status' => $item['visible']
-                    ? 'Visible'
-                    : 'Hidden'
+                'has_fbs' => (bool) ($item['has_fbs_stocks'] ?? false),
 
             ];
 
         }
 
-        return $products;
+        return [
 
+            'success' => true,
+
+            'message' => '',
+
+            'items' => $items,
+
+            'last_id' => (string) ($response['body']['result']['last_id'] ?? ''),
+
+        ];
     }
 }

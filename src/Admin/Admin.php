@@ -210,9 +210,13 @@ class Admin
 
             check_admin_referer('mb_catalog');
 
-            $service = new ProductService();
+           $service = new ProductService();
 
-            $products = $service->getProducts();
+echo '<pre>';
+print_r($service->getProducts());
+echo '</pre>';
+
+die();
         }
 
         ?>
