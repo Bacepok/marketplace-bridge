@@ -8,7 +8,7 @@ class Plugin
 {
     public function boot(): void
     {
-        $admin = new Admin();
+        $admin = new \MarketplaceBridge\Admin\Admin();
 
         add_action('admin_menu', [$admin, 'registerMenu']);
     }
