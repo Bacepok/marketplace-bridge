@@ -27,23 +27,30 @@ class Client
 
             return [
                 'success' => false,
-                'code'    => 0,
+                'code' => 0,
                 'message' => $response->get_error_message(),
-                'body'    => []
+                'body' => []
             ];
 
         }
 
+        $code = wp_remote_retrieve_response_code($response);
+
+        $body = json_decode(
+            wp_remote_retrieve_body($response),
+            true
+        );
+
         return [
 
-            'success' => true,
+            'success' => $code >= 200 && $code < 300,
 
-            'code' => wp_remote_retrieve_response_code($response),
+            'code' => $code,
 
-            'body' => json_decode(
-                wp_remote_retrieve_body($response),
-                true
-            )
+            'message' => $body['message']
+                ?? '',
+
+            'body' => $body
 
         ];
     }
