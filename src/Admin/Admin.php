@@ -4,6 +4,7 @@ namespace MarketplaceBridge\Admin;
 
 use MarketplaceBridge\Core\Settings;
 use MarketplaceBridge\Ozon\ConnectionService;
+use MarketplaceBridge\Ozon\ProductService;
 
 defined('ABSPATH') || exit;
 
@@ -38,6 +39,15 @@ class Admin
             'marketplace-bridge-settings',
             [$this, 'settings']
         );
+
+        add_submenu_page(
+            'marketplace-bridge',
+            'Каталог Ozon',
+            'Каталог Ozon',
+            'manage_options',
+            'marketplace-bridge-ozon',
+            [$this, 'catalog']
+        );
     }
 
     public function dashboard(): void
@@ -59,37 +69,24 @@ class Admin
                     <tbody>
 
                     <tr>
-
                         <td><strong>WordPress</strong></td>
-
                         <td><?php echo esc_html(get_bloginfo('version')); ?></td>
-
                     </tr>
 
                     <tr>
-
                         <td><strong>PHP</strong></td>
-
                         <td><?php echo esc_html(PHP_VERSION); ?></td>
-
                     </tr>
 
                     <tr>
-
                         <td><strong>WooCommerce</strong></td>
-
                         <td>
-
                             <?php
-
                             echo class_exists('WooCommerce')
                                 ? esc_html(WC()->version)
                                 : 'Не установлен';
-
                             ?>
-
                         </td>
-
                     </tr>
 
                     </tbody>
@@ -105,7 +102,7 @@ class Admin
 
     public function settings(): void
     {
-        if (!empty($_POST['mb_save'])) {
+        if (isset($_POST['mb_save'])) {
 
             check_admin_referer('mb_settings');
 
@@ -114,27 +111,21 @@ class Admin
                 'ozon_api_key'   => sanitize_text_field($_POST['ozon_api_key'] ?? '')
             ]);
 
-            echo '<div class="notice notice-success is-dismissible"><p>Настройки сохранены.</p></div>';
+            echo '<div class="notice notice-success"><p>Настройки сохранены.</p></div>';
+
+            if (isset($_POST['mb_test'])) {
+
+                $service = new ConnectionService();
+
+                $result = $service->test();
+
+                printf(
+                    '<div class="notice notice-%s"><p>%s</p></div>',
+                    $result['success'] ? 'success' : 'error',
+                    esc_html($result['message'])
+                );
+            }
         }
-        if (!empty($_POST['mb_test_connection'])) {
-
-    check_admin_referer('mb_settings');
-
-    $service = new ConnectionService();
-
-    $result = $service->test();
-
-    ?>
-
-    <div class="notice notice-<?php echo $result['success'] ? 'success' : 'error'; ?>">
-
-        <p><?php echo esc_html($result['message']); ?></p>
-
-    </div>
-
-    <?php
-
-}
 
         ?>
 
@@ -155,8 +146,8 @@ class Admin
                         <td>
 
                             <input
-                                type="text"
                                 class="regular-text"
+                                type="text"
                                 name="ozon_client_id"
                                 value="<?php echo esc_attr(Settings::get('ozon_client_id')); ?>">
 
@@ -171,8 +162,8 @@ class Admin
                         <td>
 
                             <input
-                                type="password"
                                 class="regular-text"
+                                type="password"
                                 name="ozon_api_key"
                                 value="<?php echo esc_attr(Settings::get('ozon_api_key')); ?>">
 
@@ -194,18 +185,104 @@ class Admin
                     </button>
 
                     <button
-        class="button"
-        type="submit"
-        name="mb_test_connection"
-        value="1">
+                        class="button"
+                        name="mb_test"
+                        value="1">
 
-    Проверить подключение
+                        Сохранить и проверить
 
-</button>
+                    </button>
 
                 </p>
 
             </form>
+
+        </div>
+
+        <?php
+    }
+
+    public function catalog(): void
+    {
+        $products = [];
+
+        if (isset($_POST['mb_load_catalog'])) {
+
+            check_admin_referer('mb_catalog');
+
+            $service = new ProductService();
+
+            $products = $service->getProducts();
+        }
+
+        ?>
+
+        <div class="wrap">
+
+            <h1>Каталог Ozon</h1>
+
+            <form method="post">
+
+                <?php wp_nonce_field('mb_catalog'); ?>
+
+                <p>
+
+                    <button
+                        class="button button-primary"
+                        name="mb_load_catalog"
+                        value="1">
+
+                        Получить каталог
+
+                    </button>
+
+                </p>
+
+            </form>
+
+            <?php if (!empty($products)) : ?>
+
+                <table class="widefat striped">
+
+                    <thead>
+
+                    <tr>
+
+                        <th>Offer ID</th>
+
+                        <th>Product ID</th>
+
+                        <th>Название</th>
+
+                        <th>Статус</th>
+
+                    </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    <?php foreach ($products as $product) : ?>
+
+                        <tr>
+
+                            <td><?php echo esc_html($product['offer_id']); ?></td>
+
+                            <td><?php echo esc_html($product['product_id']); ?></td>
+
+                            <td><?php echo esc_html($product['name']); ?></td>
+
+                            <td><?php echo esc_html($product['status']); ?></td>
+
+                        </tr>
+
+                    <?php endforeach; ?>
+
+                    </tbody>
+
+                </table>
+
+            <?php endif; ?>
 
         </div>
 
