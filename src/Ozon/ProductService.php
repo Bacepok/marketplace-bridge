@@ -31,6 +31,10 @@ class ProductService
                 'limit'   => $limit
             ]
         );
+        echo '<pre>';
+        print_r($response);
+        echo '</pre>';
+        die();
 
         if (
             !$response['success']
