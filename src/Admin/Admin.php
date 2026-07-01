@@ -50,6 +50,7 @@ class Admin
             [$this, 'catalog']
         );
     }
+    
     public function dashboard(): void
 {
     DashboardView::render();
@@ -70,14 +71,17 @@ public function catalog(): void
 
     $result = $controller->handle();
 
+    if (!empty($result['details']['item'])) {
+
+        ProductCardView::render(
+            $result['details']['item']
+        );
+
+        return;
+    }
+
     CatalogView::render(
         $result['catalog']
     );
-
-    if (!empty($result['details']['item'])) {
-    ProductCardView::render(
-        $result['details']['item']
-    );
 }
-
 }
