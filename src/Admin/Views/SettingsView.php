@@ -8,14 +8,32 @@ defined('ABSPATH') || exit;
 
 class SettingsView
 {
-    public static function render(): void
+    public static function render(array $result): void
     {
         ?>
 
         <div class="wrap">
 
             <h1>Настройки Ozon</h1>
+<?php if ($result['saved']) : ?>
 
+    <div class="notice notice-success">
+
+        <p>Настройки сохранены.</p>
+
+    </div>
+
+<?php endif; ?>
+
+<?php if ($result['success'] !== null) : ?>
+
+    <div class="notice notice-<?php echo $result['success'] ? 'success' : 'error'; ?>">
+
+        <p><?php echo esc_html($result['message']); ?></p>
+
+    </div>
+
+<?php endif; ?>
             <form method="post">
 
                 <?php wp_nonce_field('mb_settings'); ?>
