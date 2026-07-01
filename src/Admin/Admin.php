@@ -3,6 +3,7 @@
 namespace MarketplaceBridge\Admin;
 
 use MarketplaceBridge\Core\Settings;
+use MarketplaceBridge\Ozon\ConnectionService;
 
 defined('ABSPATH') || exit;
 
@@ -115,6 +116,25 @@ class Admin
 
             echo '<div class="notice notice-success is-dismissible"><p>Настройки сохранены.</p></div>';
         }
+        if (!empty($_POST['mb_test_connection'])) {
+
+    check_admin_referer('mb_settings');
+
+    $service = new ConnectionService();
+
+    $result = $service->test();
+
+    ?>
+
+    <div class="notice notice-<?php echo $result['success'] ? 'success' : 'error'; ?>">
+
+        <p><?php echo esc_html($result['message']); ?></p>
+
+    </div>
+
+    <?php
+
+}
 
         ?>
 
@@ -172,6 +192,16 @@ class Admin
                         Сохранить
 
                     </button>
+
+                    <button
+        class="button"
+        type="submit"
+        name="mb_test_connection"
+        value="1">
+
+    Проверить подключение
+
+</button>
 
                 </p>
 
