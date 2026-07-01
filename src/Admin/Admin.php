@@ -221,14 +221,12 @@ class Admin
 
 $details = null;
 
-if (isset($_POST['mb_product_details'])) {
-
-    check_admin_referer('mb_catalog_details');
+if (isset($_GET['product_id'])) {
 
     $service = new \MarketplaceBridge\Ozon\ProductDetailsService();
 
     $details = $service->getByProductId(
-        (int) $_POST['product_id']
+        (int) $_GET['product_id']
     );
 }
 
@@ -329,25 +327,18 @@ if (isset($_POST['mb_product_details'])) {
 
                         <td>
 
-                            <form method="post" style="margin:0;">
+                            <a
+    class="button button-secondary"
+    href="<?php echo esc_url(
+        admin_url(
+            'admin.php?page=marketplace-bridge-ozon&product_id=' .
+            (int) $product['product_id']
+        )
+    ); ?>">
 
-    <?php wp_nonce_field('mb_catalog_details'); ?>
+    Подробнее
 
-    <input
-        type="hidden"
-        name="product_id"
-        value="<?php echo (int)$product['product_id']; ?>">
-
-    <button
-        class="button button-secondary"
-        name="mb_product_details"
-        value="1">
-
-        Подробнее
-
-    </button>
-
-</form>
+</a>
 
                         </td>
 
