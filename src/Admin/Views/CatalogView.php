@@ -137,10 +137,5 @@ class CatalogView
 
         <?php
 
-        if (!empty($details['item'])) {
-
-            ProductCardView::render($details['item']);
-
-        }
     }
 }
