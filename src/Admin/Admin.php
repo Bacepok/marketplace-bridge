@@ -219,7 +219,23 @@ class Admin
         $catalog = $service->getProducts();
     }
 
-    ?>
+    $catalog = $service->getProducts();
+}
+
+$details = null;
+
+if (isset($_POST['mb_product_details'])) {
+
+    check_admin_referer('mb_catalog_details');
+
+    $service = new \MarketplaceBridge\Ozon\ProductDetailsService();
+
+    $details = $service->getByProductId(
+        (int) $_POST['product_id']
+    );
+}
+
+?>
 
     <div class="wrap">
 
@@ -345,7 +361,125 @@ class Admin
                 </tbody>
 
             </table>
+<?php if (!empty($details['item'])) : ?>
 
+<hr>
+
+<h2>Карточка товара</h2>
+
+<table class="widefat striped">
+
+    <tbody>
+
+    <tr>
+
+        <th width="250">Название</th>
+
+        <td>
+
+            <?php echo esc_html($details['item']['name']); ?>
+
+        </td>
+
+    </tr>
+
+    <tr>
+
+        <th>Offer ID</th>
+
+        <td>
+
+            <?php echo esc_html($details['item']['offer_id']); ?>
+
+        </td>
+
+    </tr>
+
+    <tr>
+
+        <th>SKU</th>
+
+        <td>
+
+            <?php echo esc_html(
+                $details['item']['sources'][0]['sku'] ?? ''
+            ); ?>
+
+        </td>
+
+    </tr>
+
+    <tr>
+
+        <th>Цена</th>
+
+        <td>
+
+            <?php echo esc_html($details['item']['price']); ?>
+
+            <?php echo esc_html($details['item']['currency_code']); ?>
+
+        </td>
+
+    </tr>
+
+    <tr>
+
+        <th>Старая цена</th>
+
+        <td>
+
+            <?php echo esc_html($details['item']['old_price']); ?>
+
+        </td>
+
+    </tr>
+
+    <tr>
+
+        <th>Штрихкод</th>
+
+        <td>
+
+            <?php
+
+            echo esc_html(
+                $details['item']['barcodes'][0] ?? ''
+            );
+
+            ?>
+
+        </td>
+
+    </tr>
+
+    <tr>
+
+        <th>Описание</th>
+
+        <td>
+
+            <?php
+
+            echo wp_kses_post(
+                nl2br(
+                    esc_html(
+                        $details['item']['description']
+                    )
+                )
+            );
+
+            ?>
+
+        </td>
+
+    </tr>
+
+    </tbody>
+
+</table>
+
+<?php endif; ?>
         <?php endif; ?>
 
     </div>
