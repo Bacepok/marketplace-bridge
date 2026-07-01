@@ -50,3 +50,16 @@ class Admin
             [$this, 'catalog']
         );
     }
+    public function dashboard(): void
+{
+    DashboardView::render();
+}
+
+public function settings(): void
+{
+    $controller = new SettingsController();
+
+    $result = $controller->handle();
+
+    SettingsView::render($result);
+}
