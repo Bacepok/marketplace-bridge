@@ -71,16 +71,13 @@ public function catalog(): void
     $result = $controller->handle();
 
     CatalogView::render(
-        $result['catalog'],
-        $result['details']
+        $result['catalog']
     );
 
-    if (
-        !empty($result['details']) &&
-        !empty($result['details']['item'])
-    ) {
-        ProductCardView::render(
-            $result['details']['item']
-        );
-    }
+    if (!empty($result['details']['item'])) {
+    ProductCardView::render(
+        $result['details']['item']
+    );
+}
+
 }
