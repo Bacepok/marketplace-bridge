@@ -203,58 +203,76 @@ class Admin
     }
 
     public function catalog(): void
-    {
-        $products = [];
+{
+    $catalog = [
+        'success' => false,
+        'items' => [],
+        'message' => ''
+    ];
 
-        if (isset($_POST['mb_load_catalog'])) {
+    if (isset($_POST['mb_load_catalog'])) {
 
-            check_admin_referer('mb_catalog');
+        check_admin_referer('mb_catalog');
 
-            $service = new ProductService();
+        $service = new ProductService();
 
-            $products = $service->getProducts();
-        }
+        $catalog = $service->getProducts();
+    }
 
-        ?>
+    ?>
 
-        <div class="wrap">
+    <div class="wrap">
 
-            <h1>Каталог Ozon</h1>
+        <h1>Каталог Ozon</h1>
 
-            <form method="post">
+        <form method="post">
 
-                <?php wp_nonce_field('mb_catalog'); ?>
+            <?php wp_nonce_field('mb_catalog'); ?>
 
-                <p>
+            <p>
 
-                    <button
-                        class="button button-primary"
-                        name="mb_load_catalog"
-                        value="1">
+                <button
+                    class="button button-primary"
+                    name="mb_load_catalog"
+                    value="1">
 
-                        Получить каталог
+                    Получить каталог
 
-                    </button>
+                </button>
 
-                </p>
+            </p>
 
-            </form>
+        </form>
 
-            <?php if (!empty($products)) : ?>
+        <?php if (!$catalog['success'] && !empty($catalog['message'])) : ?>
 
-              <table class="widefat striped">
+            <div class="notice notice-error">
+
+                <p><?php echo esc_html($catalog['message']); ?></p>
+
+            </div>
+
+        <?php endif; ?>
+
+        <?php if (!empty($catalog['items'])) : ?>
+
+            <table class="widefat striped">
 
                 <thead>
 
                 <tr>
 
-                    <th>Offer ID</th>
+                    <th width="120">Offer ID</th>
 
-                    <th>Product ID</th>
+                    <th width="120">Product ID</th>
 
-                    <th>Название</th>
+                    <th width="80">FBO</th>
 
-                    <th>Статус</th>
+                    <th width="80">FBS</th>
+
+                    <th width="120">Архив</th>
+
+                    <th width="120">Действие</th>
 
                 </tr>
 
@@ -262,17 +280,51 @@ class Admin
 
                 <tbody>
 
-                <?php foreach ($products as $product) : ?>
+                <?php foreach ($catalog['items'] as $product) : ?>
 
                     <tr>
 
-                        <td><?php echo esc_html($product['offer_id']); ?></td>
+                        <td>
 
-                        <td><?php echo esc_html($product['product_id']); ?></td>
+                            <?php echo esc_html($product['offer_id']); ?>
 
-                        <td><?php echo esc_html($product['name']); ?></td>
+                        </td>
 
-                        <td><?php echo esc_html($product['status']); ?></td>
+                        <td>
+
+                            <?php echo esc_html($product['product_id']); ?>
+
+                        </td>
+
+                        <td>
+
+                            <?php echo $product['has_fbo'] ? '✔' : '—'; ?>
+
+                        </td>
+
+                        <td>
+
+                            <?php echo $product['has_fbs'] ? '✔' : '—'; ?>
+
+                        </td>
+
+                        <td>
+
+                            <?php echo $product['archived'] ? 'Да' : 'Нет'; ?>
+
+                        </td>
+
+                        <td>
+
+                            <button
+                                class="button button-secondary"
+                                disabled>
+
+                                Подробнее
+
+                            </button>
+
+                        </td>
 
                     </tr>
 
@@ -282,10 +334,10 @@ class Admin
 
             </table>
 
-            <?php endif; ?>
+        <?php endif; ?>
 
-        </div>
+    </div>
 
-        <?php
-    }
+    <?php
+}
 }
