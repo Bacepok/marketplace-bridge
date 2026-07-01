@@ -202,35 +202,50 @@ class Admin
         <?php
     }
 
-    public function catalog(): void
+public function catalog(): void
 {
     $catalog = [
         'success' => false,
-        'items' => [],
-        'message' => ''
+        'items'   => [],
+        'message' => '',
+        'last_id' => ''
     ];
 
-    if (isset($_POST['mb_load_catalog'])) {
+    $details = null;
+
+    $service = new ProductService();
+
+    /*
+     * Если открыли карточку товара
+     * — сначала снова загружаем каталог,
+     * потом получаем карточку.
+     */
+
+    if (isset($_GET['product_id'])) {
+
+        $catalog = $service->getProducts();
+
+        $detailsService = new \MarketplaceBridge\Ozon\ProductDetailsService();
+
+        $details = $detailsService->getByProductId(
+            (int) $_GET['product_id']
+        );
+
+    }
+
+    /*
+     * Просто загрузить каталог
+     */
+
+    elseif (isset($_POST['mb_load_catalog'])) {
 
         check_admin_referer('mb_catalog');
 
-        $service = new ProductService();
-
         $catalog = $service->getProducts();
-}
 
-$details = null;
+    }
 
-if (isset($_GET['product_id'])) {
-
-    $service = new \MarketplaceBridge\Ozon\ProductDetailsService();
-
-    $details = $service->getByProductId(
-        (int) $_GET['product_id']
-    );
-}
-
-?>
+    ?>
 
     <div class="wrap">
 
@@ -266,6 +281,65 @@ if (isset($_GET['product_id'])) {
         <?php endif; ?>
 
         <?php if (!empty($catalog['items'])) : ?>
+
+            <table class="widefat striped">
+
+                <thead>
+
+                <tr>
+
+                    <th width="140">Offer ID</th>
+
+                    <th width="120">Product ID</th>
+
+                    <th width="60">FBO</th>
+
+                    <th width="60">FBS</th>
+
+                    <th width="80">Архив</th>
+
+                    <th width="160">Действия</th>
+
+                </tr>
+
+                </thead>
+
+                <tbody>
+
+    <div class="wrap">
+
+        <h1>Каталог Ozon</h1>
+
+        <form method="post">
+
+            <?php wp_nonce_field('mb_catalog'); ?>
+
+            <p>
+
+                <button
+                    class="button button-primary"
+                    name="mb_load_catalog"
+                    value="1">
+
+                    Получить каталог
+
+                </button>
+
+            </p>
+
+        </form>
+
+        <?php if (!$catalog['success'] && !empty($catalog['message'])) : ?>
+
+            <div class="notice notice-error">
+
+                <p><?php echo esc_html($catalog['message']); ?></p>
+
+            </div>
+
+        <?php endif; ?>
+
+        <?php if (true) : ?>
 
             <table class="widefat striped">
 
