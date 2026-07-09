@@ -85,14 +85,10 @@ class ProductImporter
                 : 'instock'
         );
 
-        if (!empty($product->images)) {
+        $attributes = $this->buildAttributes($product->attributes);
 
-            $imageId = $this->importImage($product->images[0]);
-
-            if ($imageId > 0) {
-                $wcProduct->set_image_id($imageId);
-            }
-
+        if (!empty($attributes)) {
+            $wcProduct->set_attributes($attributes);
         }
 
         /*
@@ -101,18 +97,28 @@ class ProductImporter
 
         $productId = $wcProduct->save();
 
-        $imageUrl = $this->getPrimaryImageUrl($product->images);
+        $imageUrls = $this->getImageUrls($product->images);
 
-        if ($productId <= 0 || $imageUrl === '') {
+        if ($productId <= 0 || empty($imageUrls)) {
             return $productId;
         }
 
-        $imageId = $this->importImage(
-            $imageUrl,
-            $productId
-        );
+        $imageIds = [];
 
-        if ($imageId <= 0) {
+        foreach ($imageUrls as $imageUrl) {
+
+            $imageId = $this->importImage(
+                $imageUrl,
+                $productId
+            );
+
+            if ($imageId > 0) {
+                $imageIds[] = $imageId;
+            }
+
+        }
+
+        if (empty($imageIds)) {
             return $productId;
         }
 
@@ -122,22 +128,128 @@ class ProductImporter
             return $productId;
         }
 
-        $wcProduct->set_image_id($imageId);
+        $wcProduct->set_image_id($imageIds[0]);
+
+        if (count($imageIds) > 1) {
+            $wcProduct->set_gallery_image_ids(array_slice($imageIds, 1));
+        }
 
         return $wcProduct->save();
     }
 
-    private function getPrimaryImageUrl(array $images): string
+    private function getImageUrls(array $images): array
     {
+        $urls = [];
+
         foreach ($images as $image) {
 
             if (is_string($image) && $image !== '') {
-                return $image;
+                $urls[] = $image;
             }
 
         }
 
-        return '';
+        return array_values(array_unique($urls));
+    }
+
+    private function buildAttributes(array $attributes): array
+    {
+        $wcAttributes = [];
+
+        $position = 0;
+
+        foreach ($attributes as $attribute) {
+
+            if (!is_array($attribute)) {
+                continue;
+            }
+
+            $name = $this->getAttributeName($attribute);
+
+            $values = $this->getAttributeValues($attribute);
+
+            if ($name === '' || empty($values)) {
+                continue;
+            }
+
+            $wcAttribute = new \WC_Product_Attribute();
+
+            $wcAttribute->set_id(0);
+            $wcAttribute->set_name($name);
+            $wcAttribute->set_options($values);
+            $wcAttribute->set_position($position);
+            $wcAttribute->set_visible(true);
+            $wcAttribute->set_variation(false);
+
+            $wcAttributes[] = $wcAttribute;
+
+            $position++;
+
+        }
+
+        return $wcAttributes;
+    }
+
+    private function getAttributeName(array $attribute): string
+    {
+        return trim((string) (
+            $attribute['attribute_name']
+            ?? $attribute['name']
+            ?? $attribute['title']
+            ?? $attribute['id']
+            ?? ''
+        ));
+    }
+
+    private function getAttributeValues(array $attribute): array
+    {
+        $values = [];
+
+        if (!empty($attribute['values']) && is_array($attribute['values'])) {
+
+            foreach ($attribute['values'] as $value) {
+
+                $normalized = $this->normalizeAttributeValue($value);
+
+                if ($normalized !== '') {
+                    $values[] = $normalized;
+                }
+
+            }
+
+        } else {
+
+            $normalized = $this->normalizeAttributeValue(
+                $attribute['value']
+                ?? $attribute['value_name']
+                ?? ''
+            );
+
+            if ($normalized !== '') {
+                $values[] = $normalized;
+            }
+
+        }
+
+        return array_values(array_unique($values));
+    }
+
+    private function normalizeAttributeValue($value): string
+    {
+        if (is_scalar($value)) {
+            return trim((string) $value);
+        }
+
+        if (!is_array($value)) {
+            return '';
+        }
+
+        return trim((string) (
+            $value['value']
+            ?? $value['value_name']
+            ?? $value['name']
+            ?? ''
+        ));
     }
 
     private function importImage(string $imageUrl, int $productId = 0): int
