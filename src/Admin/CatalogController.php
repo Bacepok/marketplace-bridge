@@ -46,6 +46,7 @@ class CatalogController
         if (isset($_GET['product_id'])) {
 
             check_admin_referer('mb_product_details', 'mb_product_details_nonce');
+            check_admin_referer('mb_product_details');
 
             $productId = absint($_GET['product_id']);
 
