@@ -133,22 +133,10 @@ class ProductDetailsService
 
             foreach ($item[$key] as $image) {
 
-                if (is_string($image)) {
-                    $images[] = $image;
-                    continue;
-                }
-
-                if (!is_array($image)) {
-                    continue;
-                }
-
-                $url = $image['url']
-                    ?? $image['file_name']
-                    ?? $image['image_url']
-                    ?? '';
+                $url = $this->extractImageUrl($image);
 
                 if ($url !== '') {
-                    $images[] = (string) $url;
+                    $images[] = $url;
                 }
 
             }
@@ -156,9 +144,33 @@ class ProductDetailsService
         }
 
         if (!empty($item['primary_image'])) {
-            array_unshift($images, (string) $item['primary_image']);
+
+            $primaryImage = $this->extractImageUrl($item['primary_image']);
+
+            if ($primaryImage !== '') {
+                array_unshift($images, $primaryImage);
+            }
+
         }
 
         return array_values(array_unique(array_filter($images)));
+    }
+
+    private function extractImageUrl($image): string
+    {
+        if (is_string($image)) {
+            return $image;
+        }
+
+        if (!is_array($image)) {
+            return '';
+        }
+
+        return (string) (
+            $image['url']
+            ?? $image['file_name']
+            ?? $image['image_url']
+            ?? ''
+        );
     }
 }

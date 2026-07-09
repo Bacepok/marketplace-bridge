@@ -101,12 +101,14 @@ class ProductImporter
 
         $productId = $wcProduct->save();
 
-        if ($productId <= 0 || empty($product->images[0])) {
+        $imageUrl = $this->getPrimaryImageUrl($product->images);
+
+        if ($productId <= 0 || $imageUrl === '') {
             return $productId;
         }
 
         $imageId = $this->importImage(
-            (string) $product->images[0],
+            $imageUrl,
             $productId
         );
 
@@ -125,7 +127,20 @@ class ProductImporter
         return $wcProduct->save();
     }
 
-    private function importImage(string $imageUrl, int $productId): int
+    private function getPrimaryImageUrl(array $images): string
+    {
+        foreach ($images as $image) {
+
+            if (is_string($image) && $image !== '') {
+                return $image;
+            }
+
+        }
+
+        return '';
+    }
+
+    private function importImage(string $imageUrl, int $productId = 0): int
     {
         $existingId = $this->findExistingImage($imageUrl);
 

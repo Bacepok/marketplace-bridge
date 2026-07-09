@@ -47,7 +47,7 @@ class ProductMapper
         }
 
         if (!empty($item['primary_image'])) {
-            array_unshift($images, (string) $item['primary_image']);
+            array_unshift($images, $item['primary_image']);
         }
 
         $product->images = $this->normalizeImages($images);
