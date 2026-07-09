@@ -85,6 +85,16 @@ class ProductImporter
                 : 'instock'
         );
 
+        if (!empty($product->images)) {
+
+            $imageId = $this->importImage($product->images[0]);
+
+            if ($imageId > 0) {
+                $wcProduct->set_image_id($imageId);
+            }
+
+        }
+
         /*
          * Сохранение
          */
