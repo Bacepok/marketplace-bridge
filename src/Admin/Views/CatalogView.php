@@ -116,6 +116,8 @@ class CatalogView
                                                 'admin.php?page=marketplace-bridge-ozon&product_id=' .
                                                 (int) $product['product_id']
                                             ),
+                                            'mb_product_details',
+                                            'mb_product_details_nonce'
                                             'mb_product_details'
                                         )
                                     ); ?>">
