@@ -74,6 +74,20 @@ class CatalogView
 
                     <?php foreach ($catalog['items'] as $product) : ?>
 
+                        <?php
+
+                        $detailsUrl = admin_url(
+                            'admin.php?page=marketplace-bridge-ozon&product_id=' .
+                            (int) $product['product_id']
+                        );
+
+                        $detailsUrl = wp_nonce_url(
+                            $detailsUrl,
+                            'mb_product_details'
+                        );
+
+                        ?>
+
                         <tr>
 
                             <td>
@@ -110,12 +124,7 @@ class CatalogView
 
                                 <a
                                     class="button button-secondary"
-                                    href="<?php echo esc_url(
-                                        admin_url(
-                                            'admin.php?page=marketplace-bridge-ozon&product_id=' .
-                                            (int) $product['product_id']
-                                        )
-                                    ); ?>">
+                                    href="<?php echo esc_url($detailsUrl); ?>">
 
                                     Подробнее
 
