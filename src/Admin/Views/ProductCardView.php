@@ -9,13 +9,49 @@ class ProductCardView
     /**
      * Отрисовка карточки товара Ozon.
      */
-    public static function render(array $item): void
+    public static function render(array $item, ?array $importResult = null): void
     {
         ?>
 
         <hr style="margin:30px 0;">
 
         <h2>Карточка товара</h2>
+
+        <?php if ($importResult !== null) : ?>
+
+            <div class="notice notice-<?php echo $importResult['success'] ? 'success' : 'error'; ?>">
+
+                <p><?php echo esc_html($importResult['message']); ?></p>
+
+                <?php if (!empty($importResult['product_id'])) : ?>
+
+                    <p>WooCommerce Product ID: <?php echo (int) $importResult['product_id']; ?></p>
+
+                <?php endif; ?>
+
+            </div>
+
+        <?php endif; ?>
+
+        <form method="post" style="margin:20px 0;">
+
+            <?php wp_nonce_field('mb_import_product', 'mb_import_product_nonce'); ?>
+
+            <input
+                type="hidden"
+                name="product_id"
+                value="<?php echo (int) ($item['id'] ?? 0); ?>">
+
+            <button
+                class="button button-primary"
+                name="mb_import_product"
+                value="1">
+
+                Импортировать в WooCommerce
+
+            </button>
+
+        </form>
 
         <table class="widefat striped">
 

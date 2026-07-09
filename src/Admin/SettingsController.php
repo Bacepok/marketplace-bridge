@@ -22,6 +22,10 @@ class SettingsController
             'message' => '',
         ];
 
+        if (!current_user_can('manage_options')) {
+            return $result;
+        }
+
         if (!isset($_POST['mb_save'])) {
             return $result;
         }
