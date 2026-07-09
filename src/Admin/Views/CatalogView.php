@@ -118,6 +118,7 @@ class CatalogView
                                             ),
                                             'mb_product_details',
                                             'mb_product_details_nonce'
+                                            'mb_product_details'
                                         )
                                     ); ?>">
 
