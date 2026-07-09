@@ -24,6 +24,12 @@ class Product
 
     public string $currency = 'RUB';
 
+    public string $marketplaceUrl = '';
+
+    public bool $manageStock = false;
+
+    public int $stockQuantity = 0;
+
     public array $images = [];
 
     public array $attributes = [];

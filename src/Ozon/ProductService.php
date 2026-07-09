@@ -23,7 +23,7 @@ class ProductService
      * ]
      */
     public function getProducts(
-        int $limit = 50,
+        int $limit = 100,
         string $lastId = ''
     ): array {
 
@@ -72,6 +72,11 @@ class ProductService
                 'offer_id' => (string) ($item['offer_id'] ?? ''),
 
                 'archived' => (bool) ($item['archived'] ?? false),
+
+                'status' => (string) (
+                    $item['status']
+                    ?? (($item['archived'] ?? false) ? 'Архив' : 'Активен')
+                ),
 
                 'has_fbo' => (bool) ($item['has_fbo_stocks'] ?? false),
 

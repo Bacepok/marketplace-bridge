@@ -62,6 +62,8 @@ class CatalogView
 
                         <th width="60">FBS</th>
 
+                        <th width="100">Статус</th>
+
                         <th width="80">Архив</th>
 
                         <th width="180">Действия</th>
@@ -73,6 +75,20 @@ class CatalogView
                     <tbody>
 
                     <?php foreach ($catalog['items'] as $product) : ?>
+
+                        <?php
+
+                        $detailsUrl = admin_url(
+                            'admin.php?page=marketplace-bridge-ozon&product_id=' .
+                            (int) $product['product_id']
+                        );
+
+                        $detailsUrl = wp_nonce_url(
+                            $detailsUrl,
+                            'mb_product_details'
+                        );
+
+                        ?>
 
                         <tr>
 
@@ -102,6 +118,12 @@ class CatalogView
 
                             <td>
 
+                                <?php echo esc_html($product['status'] ?? ''); ?>
+
+                            </td>
+
+                            <td>
+
                                 <?php echo $product['archived'] ? 'Да' : 'Нет'; ?>
 
                             </td>
@@ -110,12 +132,7 @@ class CatalogView
 
                                 <a
                                     class="button button-secondary"
-                                    href="<?php echo esc_url(
-                                        admin_url(
-                                            'admin.php?page=marketplace-bridge-ozon&product_id=' .
-                                            (int) $product['product_id']
-                                        )
-                                    ); ?>">
+                                    href="<?php echo esc_url($detailsUrl); ?>">
 
                                     Подробнее
 
@@ -130,6 +147,30 @@ class CatalogView
                     </tbody>
 
                 </table>
+
+                <?php if (!empty($catalog['last_id'])) : ?>
+
+                    <form method="post" style="margin-top:15px;">
+
+                        <?php wp_nonce_field('mb_catalog'); ?>
+
+                        <input
+                            type="hidden"
+                            name="last_id"
+                            value="<?php echo esc_attr($catalog['last_id']); ?>">
+
+                        <button
+                            class="button"
+                            name="mb_load_catalog"
+                            value="1">
+
+                            Следующая страница
+
+                        </button>
+
+                    </form>
+
+                <?php endif; ?>
 
             <?php endif; ?>
 

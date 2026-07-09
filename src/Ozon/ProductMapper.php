@@ -32,6 +32,27 @@ class ProductMapper
 
         $product->archived = (bool) ($item['is_archived'] ?? false);
 
+        $ozonSku = (string) (
+            $item['sources'][0]['sku']
+            ?? $item['sku']
+            ?? ''
+        );
+
+        $product->marketplaceUrl = (string) (
+            $item['url']
+            ?? $item['share_url']
+            ?? ''
+        );
+
+        if ($product->marketplaceUrl === '' && $ozonSku !== '') {
+            $product->marketplaceUrl = 'https://www.ozon.ru/product/' . $ozonSku . '/';
+        }
+
+        if (isset($item['stock_quantity'])) {
+            $product->manageStock = true;
+            $product->stockQuantity = max(0, (int) $item['stock_quantity']);
+        }
+
         if (!empty($item['barcodes'][0])) {
             $product->barcode = (string) $item['barcodes'][0];
         }
@@ -40,14 +61,51 @@ class ProductMapper
             $product->sku = (string) $item['sources'][0]['sku'];
         }
 
+        $images = [];
+
         if (!empty($item['images']) && is_array($item['images'])) {
-            $product->images = $item['images'];
+            $images = $item['images'];
         }
+
+        if (!empty($item['primary_image'])) {
+            array_unshift($images, $item['primary_image']);
+        }
+
+        $product->images = $this->normalizeImages($images);
 
         if (!empty($item['attributes']) && is_array($item['attributes'])) {
             $product->attributes = $item['attributes'];
         }
 
         return $product;
+    }
+
+    private function normalizeImages(array $images): array
+    {
+        $normalized = [];
+
+        foreach ($images as $image) {
+
+            if (is_string($image)) {
+                $normalized[] = $image;
+                continue;
+            }
+
+            if (!is_array($image)) {
+                continue;
+            }
+
+            $url = $image['url']
+                ?? $image['file_name']
+                ?? $image['image_url']
+                ?? '';
+
+            if ($url !== '') {
+                $normalized[] = (string) $url;
+            }
+
+        }
+
+        return array_values(array_unique(array_filter($normalized)));
     }
 }

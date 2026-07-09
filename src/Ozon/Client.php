@@ -36,10 +36,28 @@ class Client
 
         $code = wp_remote_retrieve_response_code($response);
 
+        $rawBody = wp_remote_retrieve_body($response);
+
         $body = json_decode(
-            wp_remote_retrieve_body($response),
+            $rawBody,
             true
         );
+
+        if (!is_array($body)) {
+
+            return [
+
+                'success' => false,
+
+                'code' => $code,
+
+                'message' => 'Некорректный JSON-ответ Ozon.',
+
+                'body' => []
+
+            ];
+
+        }
 
         return [
 
@@ -47,8 +65,9 @@ class Client
 
             'code' => $code,
 
-            'message' => $body['message']
-                ?? '',
+            'message' => (string) ($body['message']
+                ?? $body['error']['message']
+                ?? ''),
 
             'body' => $body
 
