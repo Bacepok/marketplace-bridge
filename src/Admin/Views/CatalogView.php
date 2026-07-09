@@ -140,6 +140,30 @@ class CatalogView
 
                 </table>
 
+                <?php if (!empty($catalog['last_id'])) : ?>
+
+                    <form method="post" style="margin-top:15px;">
+
+                        <?php wp_nonce_field('mb_catalog'); ?>
+
+                        <input
+                            type="hidden"
+                            name="last_id"
+                            value="<?php echo esc_attr($catalog['last_id']); ?>">
+
+                        <button
+                            class="button"
+                            name="mb_load_catalog"
+                            value="1">
+
+                            Следующая страница
+
+                        </button>
+
+                    </form>
+
+                <?php endif; ?>
+
             <?php endif; ?>
 
         </div>

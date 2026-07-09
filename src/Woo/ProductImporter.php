@@ -77,13 +77,35 @@ class ProductImporter
          * Остатки
          */
 
-        $wcProduct->set_manage_stock(false);
+        if ($product->manageStock) {
 
-        $wcProduct->set_stock_status(
-            $product->archived
-                ? 'outofstock'
-                : 'instock'
-        );
+            $wcProduct->set_manage_stock(true);
+
+            $wcProduct->set_stock_quantity($product->stockQuantity);
+
+            $wcProduct->set_stock_status(
+                $product->stockQuantity > 0
+                    ? 'instock'
+                    : 'outofstock'
+            );
+
+        } else {
+
+            $wcProduct->set_manage_stock(false);
+
+            $wcProduct->set_stock_status(
+                $product->archived
+                    ? 'outofstock'
+                    : 'instock'
+            );
+
+        }
+
+        $attributes = $this->buildAttributes($product->attributes);
+
+        if (!empty($attributes)) {
+            $wcProduct->set_attributes($attributes);
+        }
 
         $attributes = $this->buildAttributes($product->attributes);
 
@@ -96,6 +118,14 @@ class ProductImporter
          */
 
         $productId = $wcProduct->save();
+
+        if ($productId > 0 && $product->marketplaceUrl !== '') {
+            update_post_meta(
+                $productId,
+                'url_ozon',
+                esc_url_raw($product->marketplaceUrl)
+            );
+        }
 
         $imageUrls = $this->getImageUrls($product->images);
 

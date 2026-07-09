@@ -32,6 +32,21 @@ class ProductMapper
 
         $product->archived = (bool) ($item['is_archived'] ?? false);
 
+        $product->marketplaceUrl = (string) (
+            $item['url']
+            ?? $item['share_url']
+            ?? ''
+        );
+
+        if ($product->marketplaceUrl === '' && $product->marketplaceId > 0) {
+            $product->marketplaceUrl = 'https://www.ozon.ru/product/' . $product->marketplaceId . '/';
+        }
+
+        if (isset($item['stock_quantity'])) {
+            $product->manageStock = true;
+            $product->stockQuantity = max(0, (int) $item['stock_quantity']);
+        }
+
         if (!empty($item['barcodes'][0])) {
             $product->barcode = (string) $item['barcodes'][0];
         }

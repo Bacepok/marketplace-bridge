@@ -43,6 +43,12 @@ class CatalogController
 
         $productId = 0;
 
+        $lastId = '';
+
+        if (isset($_POST['last_id'])) {
+            $lastId = sanitize_text_field($_POST['last_id']);
+        }
+
         if (isset($_GET['product_id'])) {
 
             check_admin_referer('mb_product_details');
@@ -77,7 +83,7 @@ class CatalogController
 
             }
 
-            $catalog = $service->getProducts();
+            $catalog = $service->getProducts(50, $lastId);
 
         }
 

@@ -64,6 +64,12 @@ class ProductDetailsService
             $item['images'] = $images;
         }
 
+        $stockQuantity = $this->getStockByProductId($productId);
+
+        if ($stockQuantity !== null) {
+            $item['stock_quantity'] = $stockQuantity;
+        }
+
         return [
 
             'success' => true,
@@ -119,6 +125,66 @@ class ProductDetailsService
         }
 
         return $this->extractImages($items[0]);
+    }
+
+    private function getStockByProductId(int $productId): ?int
+    {
+        $response = $this->client->post(
+            '/v4/product/info/stocks',
+            [
+                'filter' => [
+                    'product_id' => [
+                        $productId
+                    ],
+                    'visibility' => 'ALL'
+                ],
+                'limit' => 100
+            ]
+        );
+
+        if (!$response['success']) {
+            return null;
+        }
+
+        $items = $response['body']['items']
+            ?? $response['body']['result']['items']
+            ?? [];
+
+        if (empty($items) || !is_array($items)) {
+            return null;
+        }
+
+        $quantity = 0;
+
+        foreach ($items as $item) {
+
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $stocks = $item['stocks'] ?? [];
+
+            if (!is_array($stocks)) {
+                continue;
+            }
+
+            foreach ($stocks as $stock) {
+
+                if (!is_array($stock)) {
+                    continue;
+                }
+
+                $present = (int) ($stock['present'] ?? $stock['stock'] ?? 0);
+
+                $reserved = (int) ($stock['reserved'] ?? 0);
+
+                $quantity += max(0, $present - $reserved);
+
+            }
+
+        }
+
+        return $quantity;
     }
 
     private function extractImages(array $item): array
