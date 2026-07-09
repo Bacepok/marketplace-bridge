@@ -85,10 +85,53 @@ class ProductImporter
                 : 'instock'
         );
 
+        if (!empty($product->images)) {
+
+            $imageId = $this->importImage($product->images[0]);
+
+            if ($imageId > 0) {
+                $wcProduct->set_image_id($imageId);
+            }
+
+        }
+
         /*
          * Сохранение
          */
 
         return $wcProduct->save();
+    }
+
+    private function importImage(string $imageUrl): int
+    {
+        if (
+            !function_exists('media_sideload_image') ||
+            !function_exists('attachment_url_to_postid')
+        ) {
+
+            require_once ABSPATH . 'wp-admin/includes/media.php';
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            require_once ABSPATH . 'wp-admin/includes/image.php';
+
+        }
+
+        $existingId = attachment_url_to_postid($imageUrl);
+
+        if ($existingId) {
+            return (int) $existingId;
+        }
+
+        $attachmentId = media_sideload_image(
+            $imageUrl,
+            0,
+            null,
+            'id'
+        );
+
+        if (is_wp_error($attachmentId)) {
+            return 0;
+        }
+
+        return (int) $attachmentId;
     }
 }

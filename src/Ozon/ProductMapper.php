@@ -40,14 +40,51 @@ class ProductMapper
             $product->sku = (string) $item['sources'][0]['sku'];
         }
 
+        $images = [];
+
         if (!empty($item['images']) && is_array($item['images'])) {
-            $product->images = $item['images'];
+            $images = $item['images'];
         }
+
+        if (!empty($item['primary_image'])) {
+            array_unshift($images, (string) $item['primary_image']);
+        }
+
+        $product->images = $this->normalizeImages($images);
 
         if (!empty($item['attributes']) && is_array($item['attributes'])) {
             $product->attributes = $item['attributes'];
         }
 
         return $product;
+    }
+
+    private function normalizeImages(array $images): array
+    {
+        $normalized = [];
+
+        foreach ($images as $image) {
+
+            if (is_string($image)) {
+                $normalized[] = $image;
+                continue;
+            }
+
+            if (!is_array($image)) {
+                continue;
+            }
+
+            $url = $image['url']
+                ?? $image['file_name']
+                ?? $image['image_url']
+                ?? '';
+
+            if ($url !== '') {
+                $normalized[] = (string) $url;
+            }
+
+        }
+
+        return array_values(array_unique(array_filter($normalized)));
     }
 }
