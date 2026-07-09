@@ -107,12 +107,6 @@ class ProductImporter
             $wcProduct->set_attributes($attributes);
         }
 
-        $attributes = $this->buildAttributes($product->attributes);
-
-        if (!empty($attributes)) {
-            $wcProduct->set_attributes($attributes);
-        }
-
         /*
          * Сохранение
          */

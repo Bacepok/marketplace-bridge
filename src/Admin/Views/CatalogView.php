@@ -62,6 +62,8 @@ class CatalogView
 
                         <th width="60">FBS</th>
 
+                        <th width="100">Статус</th>
+
                         <th width="80">Архив</th>
 
                         <th width="180">Действия</th>
@@ -111,6 +113,12 @@ class CatalogView
                             <td>
 
                                 <?php echo $product['has_fbs'] ? '✔' : '—'; ?>
+
+                            </td>
+
+                            <td>
+
+                                <?php echo esc_html($product['status'] ?? ''); ?>
 
                             </td>
 

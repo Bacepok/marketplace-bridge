@@ -83,7 +83,7 @@ class CatalogController
 
             }
 
-            $catalog = $service->getProducts(50, $lastId);
+            $catalog = $service->getProducts(100, $lastId);
 
         }
 

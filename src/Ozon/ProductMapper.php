@@ -32,14 +32,20 @@ class ProductMapper
 
         $product->archived = (bool) ($item['is_archived'] ?? false);
 
+        $ozonSku = (string) (
+            $item['sources'][0]['sku']
+            ?? $item['sku']
+            ?? ''
+        );
+
         $product->marketplaceUrl = (string) (
             $item['url']
             ?? $item['share_url']
             ?? ''
         );
 
-        if ($product->marketplaceUrl === '' && $product->marketplaceId > 0) {
-            $product->marketplaceUrl = 'https://www.ozon.ru/product/' . $product->marketplaceId . '/';
+        if ($product->marketplaceUrl === '' && $ozonSku !== '') {
+            $product->marketplaceUrl = 'https://www.ozon.ru/product/' . $ozonSku . '/';
         }
 
         if (isset($item['stock_quantity'])) {
