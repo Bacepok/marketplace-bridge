@@ -111,9 +111,12 @@ class CatalogView
                                 <a
                                     class="button button-secondary"
                                     href="<?php echo esc_url(
-                                        admin_url(
-                                            'admin.php?page=marketplace-bridge-ozon&product_id=' .
-                                            (int) $product['product_id']
+                                        wp_nonce_url(
+                                            admin_url(
+                                                'admin.php?page=marketplace-bridge-ozon&product_id=' .
+                                                (int) $product['product_id']
+                                            ),
+                                            'mb_product_details'
                                         )
                                     ); ?>">
 
