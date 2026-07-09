@@ -74,7 +74,8 @@ public function catalog(): void
     if (!empty($result['details']['item'])) {
 
         ProductCardView::render(
-            $result['details']['item']
+            $result['details']['item'],
+            $result['import_result']
         );
 
         return;
