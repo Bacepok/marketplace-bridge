@@ -23,6 +23,28 @@ class CatalogController
 
         $details = null;
 
+        if (!current_user_can('manage_options')) {
+
+            return [
+
+                'catalog' => $catalog,
+
+                'details' => $details,
+
+            ];
+
+        }
+
+        $productId = 0;
+
+        if (isset($_GET['product_id'])) {
+
+            check_admin_referer('mb_product_details');
+
+            $productId = absint($_GET['product_id']);
+
+        }
+
         $service = new ProductService();
 
         /*
@@ -48,12 +70,12 @@ class CatalogController
          * Карточка товара
          */
 
-        if (isset($_GET['product_id'])) {
+        if ($productId > 0) {
 
             $detailsService = new ProductDetailsService();
 
             $details = $detailsService->getByProductId(
-                (int) $_GET['product_id']
+                $productId
             );
 
         }
