@@ -76,18 +76,14 @@ class CatalogView
 
                         <?php
 
-                        $detailsUrl = add_query_arg(
-                            [
-                                'page' => 'marketplace-bridge-ozon',
-                                'product_id' => (int) $product['product_id'],
-                            ],
-                            admin_url('admin.php')
+                        $detailsUrl = admin_url(
+                            'admin.php?page=marketplace-bridge-ozon&product_id=' .
+                            (int) $product['product_id']
                         );
 
-                        $detailsUrl = add_query_arg(
-                            'mb_product_details_nonce',
-                            wp_create_nonce('mb_product_details'),
-                            $detailsUrl
+                        $detailsUrl = wp_nonce_url(
+                            $detailsUrl,
+                            'mb_product_details'
                         );
 
                         ?>
@@ -129,17 +125,6 @@ class CatalogView
                                 <a
                                     class="button button-secondary"
                                     href="<?php echo esc_url($detailsUrl); ?>">
-                                    href="<?php echo esc_url(
-                                        wp_nonce_url(
-                                            admin_url(
-                                                'admin.php?page=marketplace-bridge-ozon&product_id=' .
-                                                (int) $product['product_id']
-                                            ),
-                                            'mb_product_details',
-                                            'mb_product_details_nonce'
-                                            'mb_product_details'
-                                        )
-                                    ); ?>">
 
                                     Подробнее
 
