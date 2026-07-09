@@ -15,6 +15,16 @@ class ProductImporter
      */
     public function import(Product $product): int
     {
+        if (
+            !function_exists('wc_get_product_id_by_sku') ||
+            !function_exists('wc_get_product') ||
+            !class_exists('WC_Product_Simple')
+        ) {
+
+            return 0;
+
+        }
+
         $existingId = wc_get_product_id_by_sku($product->offerId);
 
         if ($existingId) {
@@ -41,9 +51,15 @@ class ProductImporter
 
         $wcProduct->set_description($product->description);
 
-        $wcProduct->set_regular_price((string)$product->price);
+        if ($product->oldPrice > $product->price) {
 
-        if ($product->oldPrice > 0) {
+            $wcProduct->set_regular_price((string) $product->oldPrice);
+
+            $wcProduct->set_sale_price((string) $product->price);
+
+        } else {
+
+            $wcProduct->set_regular_price((string) $product->price);
 
             $wcProduct->set_sale_price('');
 
@@ -69,10 +85,53 @@ class ProductImporter
                 : 'instock'
         );
 
+        if (!empty($product->images)) {
+
+            $imageId = $this->importImage($product->images[0]);
+
+            if ($imageId > 0) {
+                $wcProduct->set_image_id($imageId);
+            }
+
+        }
+
         /*
          * Сохранение
          */
 
         return $wcProduct->save();
+    }
+
+    private function importImage(string $imageUrl): int
+    {
+        if (
+            !function_exists('media_sideload_image') ||
+            !function_exists('attachment_url_to_postid')
+        ) {
+
+            require_once ABSPATH . 'wp-admin/includes/media.php';
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            require_once ABSPATH . 'wp-admin/includes/image.php';
+
+        }
+
+        $existingId = attachment_url_to_postid($imageUrl);
+
+        if ($existingId) {
+            return (int) $existingId;
+        }
+
+        $attachmentId = media_sideload_image(
+            $imageUrl,
+            0,
+            null,
+            'id'
+        );
+
+        if (is_wp_error($attachmentId)) {
+            return 0;
+        }
+
+        return (int) $attachmentId;
     }
 }
